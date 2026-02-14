@@ -9,6 +9,8 @@ This is the latest whatsappbot from Neiman Tech @2026
 
 ## KEY FEATURES
 - status managemanent 
+- media conversion (video to sticker)
+- langauge translation 
 
 ## DEPLOY ON TERMUX 
 - Download Termux From PlayStore 

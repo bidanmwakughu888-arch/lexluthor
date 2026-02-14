@@ -10,6 +10,9 @@ import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
 import express from 'express';
+import { handleUtility, utilityCommands } from './commands/utility.js';
+
+
 
 const api = express();
 const API_PORT = process.env.API_PORT || 3001;
@@ -212,9 +215,12 @@ async function startBot() {
                         text: `✅ *${BOT_NAME} v${BOT_VERSION}*\n\n> Running 24/7\n> Prefix: ${PREFIX}\n> Owner: ${OWNER_NUMBER}`
                     }, { quoted: msg });
                     break;
-    
                 default:
-                    break;
+                      if (utilityCommands.includes(command)) {
+                         await handleUtility(sock, msg, from, command, args);
+                         }
+                     break;
+    
             }
         }
     });
