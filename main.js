@@ -1,8 +1,7 @@
 import makeWASocket, { DisconnectReason, fetchLatestBaileysVersion, useMultiFileAuthState, Browsers, makeCacheableSignalKeyStore } from '@whiskeysockets/baileys';
 import {
      SESSION_ID, BOT_NAME, BOT_VERSION, PREFIX,
-    OWNER_NUMBER, AUTO_READ, AUTO_TYPING, REPLY_IN_DM_ONLY, OWNER_ONLY,
-    RECONNECT_INTERVAL, KEEP_ALIVE_INTERVAL, SESSION_RETRY_INTERVAL
+    OWNER_NUMBER, AUTO_READ, AUTO_TYPING, RECONNECT_INTERVAL, KEEP_ALIVE_INTERVAL, SESSION_RETRY_INTERVAL
 } from './settings.js';
 import { autoViewAndLikeStatus } from './status/status.js';
 import pino from 'pino';
@@ -10,17 +9,22 @@ import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
 import express from 'express';
-import { handleUtility, utilityCommands } from './commands/utility.js';
+import { handleUtility } from './commands/utility.js';
 import { sendMenu } from './commands/menu.js';
-
-
+import { handleFunCommand } from './commands/fun.js';
+import { handleGroupCommand, 
+    handleGroupParticipantsUpdate, 
+    handleAntiLink, 
+    enforceMute, 
+    handleAntiDelete,
+    cacheMessage } from './commands/group.js';
+import { registerAntiDelete } from './commands/group.js';
 
 const api = express();
 const API_PORT = process.env.API_PORT || 3001;
 const SESSION_MANAGER_URL = 'https://lexluthermd.onrender.com';
 api.use(express.json());
 
-// Status
 api.get('/status', (req, res) => {
     res.json({
         bot: BOT_NAME,
@@ -31,7 +35,6 @@ api.get('/status', (req, res) => {
     });
 });
 
-// Send message
 api.post('/send', async (req, res) => {
     try {
         const { jid, message } = req.body;
@@ -43,14 +46,12 @@ api.post('/send', async (req, res) => {
     }
 });
 
-// Restart bot
 api.post('/restart', async (req, res) => {
     res.json({ success: true, message: 'Restarting...' });
     if (fs.existsSync(AUTH_DIR)) fs.rmSync(AUTH_DIR, { recursive: true, force: true });
     isFirstConnect = true;
     setTimeout(() => startBot(), 2000);
 });
-
 
 const logger = pino({ level: 'silent' });
 const AUTH_DIR = `./bot_session/${SESSION_ID}`;
@@ -126,6 +127,9 @@ async function startBot() {
         keepAliveIntervalMs: KEEP_ALIVE_INTERVAL,
     });
 
+
+    registerAntiDelete(sock);
+
     sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
 
@@ -160,21 +164,25 @@ async function startBot() {
 
     sock.ev.on('creds.update', saveCreds);
 
+    // ── Group participants update ───────────────────────────────────────────
+    sock.ev.on('group-participants.update', async (update) => {
+        await handleGroupParticipantsUpdate(sock, update);
+    });
+
     sock.ev.on('messages.upsert', async ({ messages, type }) => {
         if (type !== 'notify') return;
-    
+
         for (const msg of messages) {
             if (!msg.message) continue;
-           // if (msg.key.fromMe) continue;
-    
+
             const from = msg.key.remoteJid;
-    
-            // Handle status — skip everything else
+
+            // ── Status ─────────────────────────────────────────────────────
             if (from === 'status@broadcast') {
                 await autoViewAndLikeStatus(sock, msg);
                 continue;
             }
-    
+
             const isGroup = from.endsWith('@g.us');
             const isChannel = from.endsWith('@newsletter');
             const realJid = msg.key.remoteJidAlt || msg.key.remoteJid;
@@ -182,15 +190,17 @@ async function startBot() {
             const senderNumber = isGroup
                 ? msg.key.participant?.split('@')[0].split(':')[0]
                 : realJid.split('@')[0].split(':')[0];
-            
+
             const isOwner = msg.key.fromMe || senderNumber === OWNER_NUMBER;
             const senderName = msg.pushName || 'Unknown';
+
             const body =
                 msg.message?.conversation ||
                 msg.message?.extendedTextMessage?.text ||
                 msg.message?.imageMessage?.caption ||
                 msg.message?.videoMessage?.caption || '';
-    
+            cacheMessage(msg);
+            await handleAntiDelete(sock, msg);
             console.log(`─────────────────────────────────`);
             console.log(`📨 From    : ${isGroup ? 'Group' : isChannel ? 'Channel' : 'DM'}`);
             console.log(`👤 Name    : ${senderName}`);
@@ -199,34 +209,50 @@ async function startBot() {
             console.log(`🆔 JID     : ${from}`);
             console.log(`👑 Owner   : ${isOwner}`);
             console.log(`─────────────────────────────────`);
-    
+
             if (AUTO_READ) await sock.readMessages([msg.key]);
+
+            // ── Enforce mute & antilink on every message ───────────────────
+            if (isGroup) {
+                await enforceMute(sock, msg);
+                const blocked = await handleAntiLink(sock, msg);
+                if (blocked) continue;
+            }
+
             if (AUTO_TYPING && body.startsWith(PREFIX)) await sock.sendPresenceUpdate('composing', from);
             if (!body.startsWith(PREFIX)) continue;
-    
+
             const args = body.slice(PREFIX.length).trim().split(/\s+/);
             const command = args.shift().toLowerCase();
-    
+
             switch (command) {
                 case 'ping':
                     await sock.sendMessage(from, { text: '🏓 Pong!' }, { quoted: msg });
                     break;
-    
+
                 case 'alive':
                     await sock.sendMessage(from, {
                         text: `✅ *${BOT_NAME} v${BOT_VERSION}*\n\n> Running 24/7\n> Prefix: ${PREFIX}\n> Owner: ${OWNER_NUMBER}`
                     }, { quoted: msg });
                     break;
+
                 case 'menu':
                 case 'help':
                     await sendMenu(sock, from, msg);
                     break;
-                default:
-                      if (utilityCommands.includes(command)) {
-                         await handleUtility(sock, msg, from, command, args);
-                         }
-                     break;
-    
+
+                default: {
+                    const handlers = [
+                        () => handleFunCommand(sock, msg, command, args),
+                        () => handleGroupCommand(sock, msg, command, args),
+                        () => handleUtility(sock, msg, from, command, args),
+                    ];
+                    for (const handler of handlers) {
+                        const handled = await handler();
+                        if (handled) break;
+                    }
+                    break;
+                }
             }
         }
     });
@@ -237,8 +263,7 @@ process.on('unhandledRejection', (err) => console.error('💥 Unhandled Rejectio
 
 console.log(`🚀 Starting ${BOT_NAME} v${BOT_VERSION}...`);
 export { sock };
-api.listen(API_PORT, () =>{ 
+api.listen(API_PORT, () => {
     console.log(`🌐 Bot API running on port ${API_PORT}`);
     startBot();
-
 });

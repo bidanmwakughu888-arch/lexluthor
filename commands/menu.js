@@ -1,6 +1,6 @@
 import { BOT_NAME, BOT_VERSION, PREFIX, OWNER_NUMBER } from '../settings.js';
 
-const MENU_IMAGE = 'https://files.catbox.moe/wmae3y.jpeg';
+const MENU_IMAGE = 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExazE4Y2swMjl0ZGR3d3hxbmp0cHFwMHF2dWtveWxkZ2c1MGd6cHYxOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PrVAwWYQl1JPG/giphy.gif';
 const CHANNEL_JID = '120363426440331517@newsletter';
 const CHANNEL_NAME = 'Luthor MD';
 
@@ -16,6 +16,13 @@ function getMenuText() {
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
+⚙️ *CORE COMMANDS*
+╔════════════════════
+║ ${PREFIX}ping
+║ ${PREFIX}alive
+║ ${PREFIX}menu / ${PREFIX}help
+╚════════════════════
+
 🛠️ *UTILITY COMMANDS*
 ╔════════════════════
 ║ ${PREFIX}sticker / ${PREFIX}s
@@ -27,11 +34,26 @@ function getMenuText() {
 ║ _(reply or write text after)_
 ╚════════════════════
 
-⚙️ *CORE COMMANDS*
+🎭 *FUN COMMANDS*
 ╔════════════════════
-║ ${PREFIX}ping
-║ ${PREFIX}alive
-║ ${PREFIX}menu / ${PREFIX}help
+║ ${PREFIX}meme — random meme
+║ ${PREFIX}yesno — yes or no with gif
+║ ${PREFIX}insult — roast someone
+║ ${PREFIX}bs — corporate nonsense
+║ ${PREFIX}joke — dad joke
+║ ${PREFIX}bored — activity suggestion
+║ ${PREFIX}8ball <question> — fortune
+╚════════════════════
+
+👥 *GROUP COMMANDS*
+╔════════════════════
+║ ${PREFIX}stalkall — DM all members
+║ ${PREFIX}stalk — DM replied member
+║ ${PREFIX}kick — kick replied member
+║ ${PREFIX}mute — mute replied member
+║ ${PREFIX}unmute — unmute replied member
+║ ${PREFIX}muteall — mute everyone
+║ ${PREFIX}unmuteall — unmute everyone
 ╚════════════════════
 
 ━━━━━━━━━━━━━━━━━━━━━━
