@@ -259,6 +259,7 @@ async function startBot() {
 
     // Handle group participants (welcome/goodbye)
     sock.ev.on('group-participants.update', async (update) => {
+        console.log('🔔 group-participants.update EVENT FIRED:', JSON.stringify(update));
         try {
             const metadata = await sock.groupMetadata(update.id);
             groupCache.set(update.id, metadata);

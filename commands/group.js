@@ -135,31 +135,52 @@ function getBody(msg) {
 export async function handleGroupParticipantsUpdate(sock, update) {
     const { id, participants, action } = update;
     
+    console.log(`👥 handleGroupParticipantsUpdate called:`);
+    console.log(`   Group: ${id}`);
+    console.log(`   Action: ${action}`);
+    console.log(`   Participants:`, participants);
+    console.log(`   WELCOME setting: ${WELCOME}`);
+    console.log(`   GOODBYE setting: ${GOODBYE}`);
+    
     // Clear cache when participants change
     clearGroupCache(id);
 
     if (action === 'add' && WELCOME) {
+        console.log('✅ Sending welcome messages...');
         for (const participant of participants) {
-            const number = participant.split('@')[0].split(':')[0];
+            // Baileys v7: participant can be object or string
+            const jid = typeof participant === 'string' ? participant : (participant.phoneNumber || participant.id);
+            const number = jid.split('@')[0].split(':')[0];
             const text = WELCOME_MESSAGE.replace('{name}', `@${number}`);
+            console.log(`   Welcoming: ${number} (${jid})`);
             try {
-                await sock.sendMessage(id, { text, mentions: [participant] });
+                await sock.sendMessage(id, { text, mentions: [jid] });
+                console.log(`   ✅ Welcome sent to ${number}`);
             } catch (err) {
-                console.error('❌ Welcome error:', err.message);
+                console.error(`   ❌ Welcome error for ${number}:`, err.message);
             }
         }
+    } else if (action === 'add') {
+        console.log('⚠️ Action is "add" but WELCOME is disabled');
     }
 
     if ((action === 'remove' || action === 'leave') && GOODBYE) {
+        console.log('✅ Sending goodbye messages...');
         for (const participant of participants) {
-            const number = participant.split('@')[0].split(':')[0];
+            // Baileys v7: participant can be object or string
+            const jid = typeof participant === 'string' ? participant : (participant.phoneNumber || participant.id);
+            const number = jid.split('@')[0].split(':')[0];
             const text = GOODBYE_MESSAGE.replace('{name}', `@${number}`);
+            console.log(`   Saying goodbye to: ${number} (${jid})`);
             try {
-                await sock.sendMessage(id, { text, mentions: [participant] });
+                await sock.sendMessage(id, { text, mentions: [jid] });
+                console.log(`   ✅ Goodbye sent to ${number}`);
             } catch (err) {
-                console.error('❌ Goodbye error:', err.message);
+                console.error(`   ❌ Goodbye error for ${number}:`, err.message);
             }
         }
+    } else if (action === 'remove' || action === 'leave') {
+        console.log('⚠️ Action is "remove/leave" but GOODBYE is disabled');
     }
 }
 
