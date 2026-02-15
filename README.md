@@ -60,28 +60,31 @@ It doesn't need your supervision. That's the point.
 
 5. Click **Deploy**
 
-### Keep it Alive (Important!)
+### ⚠️ IMPORTANT: Keep it Alive 24/7
 
-Render's free tier sleeps after 15 minutes of inactivity. To keep your bot alive:
+Render's free tier sleeps after 15 minutes of inactivity. **You MUST set up UptimeRobot** to keep your bot running 24/7.
 
-**Option 1: Use UptimeRobot (Recommended)**
-1. Go to [uptimerobot.com](https://uptimerobot.com)
-2. Create a free account
-3. Add a new monitor:
-   - Monitor Type: HTTP(s)
-   - URL: `https://your-app-name.onrender.com/ping`
-   - Monitoring Interval: 5 minutes
-4. Save
+#### Setup UptimeRobot (Takes 2 minutes):
 
-**Option 2: Use Cron-Job.org**
-1. Go to [cron-job.org](https://cron-job.org)
-2. Create a free account
-3. Create a new cron job:
-   - URL: `https://your-app-name.onrender.com/ping`
-   - Schedule: Every 10 minutes
-4. Save
+1. **Go to** 👉 [https://uptimerobot.com](https://uptimerobot.com)
+2. **Create a free account** (no credit card needed)
+3. **Click "Add New Monitor"**
+4. **Fill in:**
+   - **Monitor Type:** HTTP(s)
+   - **Friendly Name:** Lex Luthor Bot
+   - **URL:** `https://your-app-name.onrender.com/ping`
+     - Replace `your-app-name` with your actual Render app name
+     - Example: `https://lexluthor-abc123.onrender.com/ping`
+   - **Monitoring Interval:** 5 minutes
+5. **Click "Create Monitor"**
 
-Your bot will now stay alive 24/7! 🔥
+**Done!** Your bot will now stay alive 24/7. UptimeRobot will ping it every 5 minutes, preventing Render from putting it to sleep. 🔥
+
+#### How to Find Your Render App URL:
+1. Go to your Render dashboard
+2. Click on your deployed app
+3. Copy the URL at the top (looks like `https://lexluthor-xyz.onrender.com`)
+4. Add `/ping` to the end: `https://lexluthor-xyz.onrender.com/ping`
 
 ---
 
@@ -103,11 +106,8 @@ git clone https://github.com/engineermarcus/lexluthor && cd lexluthor
 # Install dependencies
 npm install
 
-# Create .env file
-cp .env.example .env
-
-# Edit settings (add your SESSION_ID and OWNER_NUMBER)
-micro .env
+# Edit settings.js directly (add your SESSION_ID and OWNER_NUMBER)
+micro settings.js
 
 # Run the bot 
 npm run luthor
@@ -126,11 +126,8 @@ git clone https://github.com/engineermarcus/lexluthor && cd lexluthor
 # Install dependencies 
 npm install
 
-# Create .env file
-cp .env.example .env
-
-# Edit with your favorite editor
-nano .env
+# Edit settings.js with your SESSION_ID and OWNER_NUMBER
+nano settings.js
 
 # Run
 npm run luthor
@@ -152,11 +149,8 @@ pm2 startup
 # Clone
 git clone https://github.com/engineermarcus/lexluthor && cd lexluthor
 
-# Create .env file
-cp .env.example .env
-
-# Edit settings
-nano .env
+# Edit settings.js with your SESSION_ID and OWNER_NUMBER
+nano settings.js
 
 # Build the docker image 
 docker build -t lexluthor .
@@ -169,24 +163,27 @@ docker run -d --name luthor --restart unless-stopped lexluthor
 
 ## 🛠️ CONFIGURATION
 
-Edit `.env` file or set environment variables:
+Edit `settings.js` file directly (no .env needed):
 
-```env
-# Essential
-SESSION_ID=your_session_id_here
-OWNER_NUMBER=254700000000
+```javascript
+// Essential
+export const SESSION_ID = 'your_session_id_here';
+export const OWNER_NUMBER = '254700000000'; // No + sign
 
-# Features (true/false)
-WELCOME=true
-GOODBYE=true
-ANTI_DELETE=true
-ANTI_LINK=true
-AUTO_VIEW_STATUS=true
-AUTO_LIKE_STATUS=true
+// Features (true/false)
+export const WELCOME = true;
+export const GOODBYE = true;
+export const ANTI_DELETE = true;
+export const ANTI_LINK = true;
+export const AUTO_VIEW_STATUS = true;
+export const AUTO_LIKE_STATUS = true;
 
-# Customize messages
-WELCOME_MESSAGE=👋 Welcome @{name} to the group!
-GOODBYE_MESSAGE=👋 Goodbye @{name}, we will miss you!
+// Auto Presence (typing, recording, online, none)
+export const AUTO_PRESENCE = 'typing';
+
+// Customize messages
+export const WELCOME_MESSAGE = '👋 Welcome @{name} to the group!';
+export const GOODBYE_MESSAGE = '👋 Goodbye @{name}, we will miss you!';
 ```
 
 ---
@@ -196,7 +193,7 @@ GOODBYE_MESSAGE=👋 Goodbye @{name}, we will miss you!
 Your bot exposes these endpoints:
 
 - `GET /status` - Check bot status
-- `GET /ping` - Keepalive endpoint (use for monitoring)
+- `GET /ping` - Keepalive endpoint (use for UptimeRobot)
 - `POST /send` - Send messages programmatically
 - `POST /restart` - Restart the bot
 
@@ -210,17 +207,23 @@ Your bot exposes these endpoints:
 3. Get a fresh session from the session manager
 
 ### Welcome/Goodbye not working?
-- Make sure you added `node-cache` dependency
-- The bot must be admin in the group
-- Check `WELCOME` and `GOODBYE` are set to `true`
+- Make sure `WELCOME` and `GOODBYE` are set to `true` in settings.js
+- Bot doesn't need admin for welcome/goodbye (just regular messages)
+- Check console logs when someone joins/leaves
 
 ### Bot keeps going offline on Render?
-- Set up UptimeRobot or Cron-Job.org (see Keep it Alive section)
+- **Did you set up UptimeRobot?** This is MANDATORY for Render free tier
 - Check your Render logs for errors
+- Make sure the ping URL is correct
 
 ### Commands not responding?
-- Check your PREFIX setting (default is `.`)
+- Check your PREFIX setting in settings.js (default is `.`)
 - Make sure you're using the right syntax: `.ping`, `.menu`, etc.
+- Check console logs to see if bot is receiving messages
+
+### Bot slow to respond?
+- Make sure you're using the optimized `group.js` with caching
+- Check if you have the latest version from GitHub
 
 ---
 
@@ -245,22 +248,34 @@ Your bot exposes these endpoints:
 - `.yesno` - Yes or no with GIF
 
 ### Group (Owner Only)
-- `.kick` - Kick user (reply)
-- `.mute` - Mute user (reply)
+- `.kick` - Kick user (reply) - **Needs admin**
+- `.mute` - Mute user (reply) - **Needs admin to delete**
 - `.unmute` - Unmute user
-- `.muteall` - Mute entire group
+- `.muteall` - Mute entire group - **Needs admin to delete**
 - `.unmuteall` - Unmute group
 - `.stalk` - DM a user (reply)
 - `.stalkall` - DM all members (dangerous!)
+
+**Note:** Welcome/Goodbye work without admin privileges!
 
 ---
 
 ## 🔒 SECURITY NOTES
 
 - Never share your SESSION_ID
-- Keep your .env file private
-- Don't commit .env to git (it's in .gitignore)
+- Don't commit settings.js with your real SESSION_ID to GitHub
 - The bot stores session data in `bot_session/` folder
+- Your phone can be off - bot runs independently
+
+---
+
+## 💡 PRO TIPS
+
+- **Bot works even when your phone is off** - Session is stored on the server
+- **Set AUTO_PRESENCE to 'recording'** for a cooler status effect
+- **Use PM2 on VPS** for automatic restarts if bot crashes
+- **UptimeRobot is mandatory** for Render deployments (free tier sleeps)
+- **Check logs regularly** to catch any issues early
 
 ---
 
