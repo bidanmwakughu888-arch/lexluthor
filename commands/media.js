@@ -14,8 +14,8 @@ export async function playCommand(sock, msg, args) {
     }
     
     await sock.sendMessage(msg.key.remoteJid, { 
-        text: '🎵 Searching...' 
-    });
+        text: `🎵 Searching ${query}...` 
+    }, { quoted: msg });
     
     try {
         const { videos } = await yts(query);
@@ -24,7 +24,7 @@ export async function playCommand(sock, msg, args) {
         if (!video) {
             await sock.sendMessage(msg.key.remoteJid, { 
                 text: '❌ No results found' 
-            });
+            }, { quoted: msg });
             return;
         }
         
@@ -33,7 +33,7 @@ export async function playCommand(sock, msg, args) {
         if (!result.success) {
             await sock.sendMessage(msg.key.remoteJid, { 
                 text: `❌ Download failed: ${result.error}` 
-            });
+            }, { quoted: msg });
             return;
         }
         
@@ -57,7 +57,7 @@ export async function playCommand(sock, msg, args) {
         console.error('Play command error:', error);
         await sock.sendMessage(msg.key.remoteJid, { 
             text: `❌ Error: ${error.message}` 
-        });
+        }, { quoted: msg });
     }
 }
 
@@ -68,13 +68,13 @@ export async function audioCommand(sock, msg, args) {
     if (!query) {
         await sock.sendMessage(msg.key.remoteJid, { 
             text: 'Usage: .audio <query>' 
-        });
+        }, { quoted: msg });
         return;
     }
     
     await sock.sendMessage(msg.key.remoteJid, { 
-        text: '🎵 Downloading audio...' 
-    });
+        text: `🎵 Downloading audio ${query}` 
+    }, { quoted: msg });
     
     try {
         const { videos } = await yts(query);
@@ -83,7 +83,7 @@ export async function audioCommand(sock, msg, args) {
         if (!url) {
             await sock.sendMessage(msg.key.remoteJid, { 
                 text: '❌ No results found' 
-            });
+            }, { quoted: msg });
             return;
         }
         
@@ -92,7 +92,7 @@ export async function audioCommand(sock, msg, args) {
         if (!result.success) {
             await sock.sendMessage(msg.key.remoteJid, { 
                 text: `❌ Download failed: ${result.error}` 
-            });
+            }, { quoted: msg });
             return;
         }
         
@@ -105,7 +105,7 @@ export async function audioCommand(sock, msg, args) {
         console.error('Audio command error:', error);
         await sock.sendMessage(msg.key.remoteJid, { 
             text: `❌ Error: ${error.message}` 
-        });
+        }, { quoted: msg });
     }
 }
 
@@ -116,13 +116,13 @@ export async function videoCommand(sock, msg, args) {
     if (!query) {
         await sock.sendMessage(msg.key.remoteJid, { 
             text: 'Usage: .video <query> or .mp4 <query>' 
-        });
+        },{ quoted: msg });
         return;
     }
     
     await sock.sendMessage(msg.key.remoteJid, { 
-        text: '🎬 Downloading video...' 
-    });
+        text: `🎬 Downloading ${query}` 
+    }, { quoted: msg });
     
     try {
         const { videos } = await yts(query);
@@ -131,7 +131,7 @@ export async function videoCommand(sock, msg, args) {
         if (!video) {
             await sock.sendMessage(msg.key.remoteJid, { 
                 text: '❌ No results found' 
-            });
+            }, { quoted: msg });
             return;
         }
 
@@ -141,7 +141,7 @@ export async function videoCommand(sock, msg, args) {
         if (!result.success) {
             await sock.sendMessage(msg.key.remoteJid, { 
                 text: `❌ Download failed: ${result.error}` 
-            });
+            }, { quoted: msg });
             return;
         }
         
@@ -155,6 +155,6 @@ export async function videoCommand(sock, msg, args) {
         console.error('Video command error:', error);
         await sock.sendMessage(msg.key.remoteJid, { 
             text: `❌ Error: ${error.message}` 
-        });
+        }, { quoted: msg });
     }
 }
