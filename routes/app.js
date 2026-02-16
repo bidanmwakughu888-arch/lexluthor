@@ -62,7 +62,7 @@ router.post("/query", async (req, res) => {
         if (result.success) {
             // Construct dynamic URL
             const baseUrl = getBaseUrl(req);
-            const fileUrl = `${baseUrl}/media/${result.filename}`;
+            const fileUrl = `${baseUrl}/media/${encodeURIComponent(result.filename)}`;
             
             return res.json({
                 success: true,
@@ -102,7 +102,7 @@ router.post("/download", async (req, res) => {
         if (result.success) {
             // Construct dynamic URL
             const baseUrl = getBaseUrl(req);
-            const fileUrl = `${baseUrl}/media/${result.filename}`;
+            const fileUrl = `${baseUrl}/media/${encodeURIComponent(result.filename)}`;
             
             return res.json({
                 success: true,
