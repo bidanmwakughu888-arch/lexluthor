@@ -1,7 +1,7 @@
 import makeWASocket, { DisconnectReason, fetchLatestBaileysVersion, useMultiFileAuthState, Browsers, makeCacheableSignalKeyStore } from '@whiskeysockets/baileys';
 import {
-     SESSION_ID, BOT_NAME, BOT_VERSION, PREFIX,
-    OWNER_NUMBER, AUTO_READ, AUTO_PRESENCE, RECONNECT_INTERVAL, KEEP_ALIVE_INTERVAL, SESSION_RETRY_INTERVAL
+     SESSION_ID, BOT_NAME, BOT_VERSION, PREFIX,OWNER_ONLY,
+    OWNER_NUMBER, OWNER_NAME, AUTO_READ, AUTO_PRESENCE, RECONNECT_INTERVAL, KEEP_ALIVE_INTERVAL, SESSION_RETRY_INTERVAL
 } from './settings.js';
 import { autoViewAndLikeStatus } from './status/status.js';
 import pino from 'pino';
@@ -335,6 +335,12 @@ async function startBot() {
             console.log(`👑 Owner   : ${isOwner}`);
 
             if (AUTO_READ) await sock.readMessages([msg.key]);
+            if (OWNER_ONLY === true && !isOwner) {
+               await sock.sendMessage(from, { 
+                   text: 'Deploy Bot: https:github.com/engineermarcus/lexluthor' 
+               }, { quoted: msg });
+               continue;
+            }
 
             // ── Enforce mute & antilink on commands in groups ──────────────
             if (isGroup) {
@@ -385,10 +391,14 @@ async function startBot() {
                break;
                case 'alive':
                     await sock.sendMessage(from, {
-                        text: `✅ *${BOT_NAME} v${BOT_VERSION}*\n\n> Running 24/7\n> Prefix: ${PREFIX}\n> Owner: ${OWNER_NUMBER}\n> Uptime: ${Math.floor(process.uptime())}s`
+                        text: `✅ *${BOT_NAME} v${BOT_VERSION}*\n\n> Running 24/7\n> Prefix: ${PREFIX}\n> Owner: ${OWNER_NAME}\n> Phone: ${OWNER_NUMBER}\n> Uptime: ${Math.floor(process.uptime())}s`
                     }, { quoted: msg });
                     break;
-
+                case 'owner':
+                    await sock.sendMessage(from, {
+                        text: `\n\n> Owner: ${OWNER_NAME}\n> Phone: ${OWNER_NUMBER}\n> Uptime: ${Math.floor(process.uptime())}s`
+                    }, { quoted: msg });
+                    break;
                 case 'menu':
                 case 'help':
                     await sendMenu(sock, from, msg);
