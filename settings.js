@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import fs from 'fs';
 
 // ─── Session Handler ───────────────────────────────────────────────────────────
 
@@ -17,7 +18,7 @@ export const PREFIX = process.env.PREFIX || '.'; // command prefix e.g. .ping .h
 export const AUTO_READ = process.env.AUTO_READ || true;        // mark messages as read automatically
 export const AUTO_PRESENCE = process.env.AUTO_PRESENCE || 'recording'; // typing, recording, online, none
 export const REPLY_IN_DM_ONLY = process.env.REPLY_IN_DM_ONLY || false; // if true, bot ignores group messages
-export const OWNER_ONLY = process.env.OWNER_ONLY || false;       // if true, only owner can use commands
+export const OWNER_ONLY = process.env.OWNER_ONLY || true;       //only owner can use commands
 export const AUTO_VIEW_STATUS = process.env.AUTO_VIEW_STATUS || true;
 export const AUTO_LIKE_STATUS = process.env.AUTO_LIKE_STATUS || true;
 export const WELCOME = process.env.WELCOME || true;
@@ -33,3 +34,8 @@ export const ANTI_LINK = process.env.ANTI_LINK || true;
 export const RECONNECT_INTERVAL = process.env.RECONNECT_INTERVAL || 5000;  // ms to wait before reconnecting
 export const KEEP_ALIVE_INTERVAL = process.env.KEEP_ALIVE_INTERVAL || 15000; // ms between WA ping to stay online
 export const SESSION_RETRY_INTERVAL = process.env.SESSION_RETRY_INTERVAL || 10000; // ms to wait before retrying manager
+
+//______________________ instagram cookie handler (OPTIONAL) _______________________________________________
+// navigate to instagram.com login to your account, download cookies.txt LOCALLY extention, then export cookies
+// On render paste the cookie contents in the environmental variables 
+export const COOKIE_CONENT = process.env.COOKIE_CONENT || "your_instgram_cookie_content"; 

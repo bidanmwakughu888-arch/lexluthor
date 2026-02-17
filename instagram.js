@@ -1,12 +1,13 @@
+import 'dotenv/config';
 import { chromium } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import fs from 'fs';
-
+import { COOKIE_CONENT } from './settings.js';
 chromium.use(StealthPlugin());
 
-function parseCookies(cookieFile) {
+function parseCookies(content) {
     const cookies = [];
-    const lines = fs.readFileSync(cookieFile, 'utf-8').split('\n');
+    const lines = content.split('\n');
     
     for (const line of lines) {
         if (line.startsWith('#') || !line.trim()) continue;
@@ -28,7 +29,6 @@ function parseCookies(cookieFile) {
     
     return cookies;
 }
-
 export async function testInstagramScrape(username) {
     console.log(`🔍 Testing scrape for: ${username}`);
     
@@ -40,7 +40,7 @@ export async function testInstagramScrape(username) {
     
     const context = await browser.newContext();
     
-    const cookies = parseCookies('./instagram_cookies.txt');
+    const cookies = parseCookies(COOKIE_CONENT);
     await context.addCookies(cookies);
     
     const page = await context.newPage();
