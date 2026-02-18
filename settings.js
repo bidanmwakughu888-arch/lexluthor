@@ -2,13 +2,13 @@ import 'dotenv/config';
 
 // ─── Session Handler ───────────────────────────────────────────────────────────
 
-export const SESSION_ID = process.env.SESSION_ID || 'Neiman_gifted-adorable-teenager'; // e.g. "apple-river-stone"
+export const SESSION_ID = process.env.SESSION_ID || 'Neiman_mysterious-elegant-vegetable';//Neiman_bad-sweet-city // e.g. "apple-river-stone"
 
 // ─── Bot Identity ──────────────────────────────────────────────────────────────
-export const BOT_NAME = process.env.BOT_NAME || 'Luthor MD';
+export const BOT_NAME = process.env.BOT_NAME || '乃丨ᗪ乇几乃ㄖㄒ';
 export const BOT_VERSION = process.env.BOT_VERSION || '1.5.0';
-export const OWNER_NUMBER = process.env.OWNER_NUMBER || '254725693306'; // your number, no +
-export const OWNER_NAME = process.env.OWNER_NAME || 'Neiman Marcus';
+export const OWNER_NUMBER = process.env.OWNER_NUMBER || '254757670139'; // your number, no +
+export const OWNER_NAME = process.env.OWNER_NAME || 'bidenchops';
 
 // ─── Command Settings ──────────────────────────────────────────────────────────
 export const PREFIX = process.env.PREFIX || '.'; // command prefix e.g. .ping .help
@@ -17,11 +17,11 @@ export const PREFIX = process.env.PREFIX || '.'; // command prefix e.g. .ping .h
 export const AUTO_READ = process.env.AUTO_READ || true;        // mark messages as read automatically
 export const AUTO_PRESENCE = process.env.AUTO_PRESENCE || 'recording'; // typing, recording, online, none
 export const REPLY_IN_DM_ONLY = process.env.REPLY_IN_DM_ONLY || false; // if true, bot ignores group messages
-export const OWNER_ONLY = process.env.OWNER_ONLY || true;       //only owner can use commands
+export const OWNER_ONLY = process.env.OWNER_ONLY || false;       //only owner can use commands
 export const AUTO_VIEW_STATUS = process.env.AUTO_VIEW_STATUS || true;
 export const AUTO_LIKE_STATUS = process.env.AUTO_LIKE_STATUS || true;
-export const WELCOME = process.env.WELCOME || true;
-export const GOODBYE = process.env.GOODBYE || true;
+export const WELCOME = process.env.WELCOME || false;
+export const GOODBYE = process.env.GOODBYE || false;
 export const WELCOME_MESSAGE = process.env.WELCOME_MESSAGE || '👀 *{name}* just walked in. The group will never be the same.';
 export const GOODBYE_MESSAGE = process.env.GOODBYE_MESSAGE || '🚪 *{name}* left. Noted. Moving on.';
 export const STALK_MESSAGE = process.env.STALK_MESSAGE || "Hey 👋 don't act surprised, you knew this day would come.";
