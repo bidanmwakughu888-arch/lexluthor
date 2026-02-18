@@ -15,9 +15,9 @@ export const PREFIX = process.env.PREFIX || '.'; // command prefix e.g. .ping .h
 
 // ─── Behaviour ─────────────────────────────────────────────────────────────────
 export const AUTO_READ = process.env.AUTO_READ || true;        // mark messages as read automatically
-export const AUTO_PRESENCE = process.env.AUTO_PRESENCE || 'recording'; // typing, recording, online, none
+export const AUTO_PRESENCE = process.env.AUTO_PRESENCE || 'typing'; // typing, recording, online, none
 export const REPLY_IN_DM_ONLY = process.env.REPLY_IN_DM_ONLY || false; // if true, bot ignores group messages
-export const OWNER_ONLY = process.env.OWNER_ONLY || false;       //only owner can use commands
+export const OWNER_ONLY = process.env.OWNER_ONLY || true;       //only owner can use commands
 export const AUTO_VIEW_STATUS = process.env.AUTO_VIEW_STATUS || true;
 export const AUTO_LIKE_STATUS = process.env.AUTO_LIKE_STATUS || true;
 export const WELCOME = process.env.WELCOME || false;
